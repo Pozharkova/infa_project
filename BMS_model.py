@@ -2,6 +2,11 @@
 # license: GPLv3
 import math
 
+def check_hit(body, target):
+    """Проверят столконовение шарика с мишенью"""
+    if (body.x - target.x)**2 + (body.y - target.y)**2 < target.r**2:
+        target.active = True
+
 def move_body(body, surface, g, dt, max_x):
     """Вычисляет проекции равнодействующей на тело силы, определяет ускорения скорости.
     Перемещает тело. Производит необходимые коррекции

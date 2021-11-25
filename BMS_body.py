@@ -1,9 +1,7 @@
 # coding: utf-8
 # license: GPLv3
-'''
-Содержит класс тела
-'''
-class body:
+
+class Body:
     '''
     Класс, описывающий тело
     Содержит массу, координаты, проекции скоростей и сил, цвет и радиус
@@ -28,3 +26,24 @@ class body:
         # Цвет объекта
         self.color = color
         self.id = 0
+
+class Target:
+
+    """Класс, описывающий мишень"""
+    def __init__(self, x=0, y=0, r=5, color = 'green' ):
+        '''
+        Инициализация мишени
+        '''
+        #координаты мишени
+        self.x = x
+        self.y = y
+
+        #радиус мишени
+        self.r = r
+
+        #цвет мишени
+        self.color = color
+        self.active_color = 'yellow'
+
+        #параметр активации мишени
+        self.active = False

@@ -42,7 +42,7 @@ def move_body(body, surface, g, dt, max_x):
     ay = body.Fy / body.m
     body.Vy += ay * dt
     body.y += body.Vy * dt
-    # проверка и коррекция при выходе тела за плоскость 
+    # проверка и коррекция при выходе тела за поверхность
     x0 = body.x
     y0 = body.y
     r = body.r
@@ -52,6 +52,7 @@ def move_body(body, surface, g, dt, max_x):
     if (x0 - x) ** 2 + (y0 - y) ** 2 < r ** 2:
         body.y = (r ** 2 - (x0 - x) ** 2) ** 0.5 + y
         body.Vy = (body.y - oldy) / dt
+    #обработка достижения телом края экрана
     if x0 + r > max_x:
         body.x = max_x - r
         body.Vx = 0

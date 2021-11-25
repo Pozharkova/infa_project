@@ -68,7 +68,7 @@ class surface:
                     y = self.points[i].y
                 #если найден интервал, то вычисляется координата точки на основе интерполяции
                 
-                elif x > self.points[i].x and x < self.points[i + 1].x:
+                elif self.points[i].x < x < self.points[i + 1].x:
                     k = (self.points[i + 1].y - self.points[i].y) / (self.points[i + 1].x - self.points[i].x)
                     b = self.points[i].y - self.points[i].x * k
                     y = k * x + b

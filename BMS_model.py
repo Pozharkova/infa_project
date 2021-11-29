@@ -3,41 +3,88 @@
 import math
 
 def check_hit(body, target):
-    """Проверят столконовение шарика с мишенью"""
-    if (body.x - target.x)**2 + (body.y - target.y)**2 < target.r**2:
+    """Проверяет столконовение шарика с мишенью"""
+    if (body.x - target.x) ** 2 + (body.y - target.y) ** 2 <= target.r ** 2:
         target.active = True
+def find_norm_x(k, b, x0, y0):
+    return (k * y0 + x0 - k * b)/(1 + k ** 2)
 
 def move_body(body, surface, g, dt, max_x):
     """Вычисляет проекции равнодействующей на тело силы, определяет ускорения скорости.
     Перемещает тело. Производит необходимые коррекции
     """
 
-    body.Fx = body.Fy = 0
+    body.Nx = body.Ny = body.Ftp_x = body.Ftp_y = body.mg = body.Fx = body.Fy = 0
+    
     x0 = body.x
     y0 = body.y
     r = body.r
+    body.xt = body.x
+    body.yt = body.y
+    #На тело всегда действует сила тяжести
+    body.mg = -body.m * g
+    
     #Определение точки касания телом поверхности
-    alpha = surface.find_alpha(x0)
-    x = math.sin(alpha) * r + x0
-    y = surface.find_y(x)
-    #Если тело касается поверхности, то определяются силы, действующие на него при движении
-    if  abs(r ** 2 - ((x0 - x) ** 2 + (y0 - y) ** 2)) <= 0.02:
-        F = -body.m * g * math.sin(alpha - math.pi)
-        kf = surface.find_friction(x)
-        if alpha != 0:
-            Ftp = kf * abs(F / math.tan(alpha - math.pi))
-        else:
-            Ftp = kf * body.m * g 
-        if body.Vx > 0:
-            F += Ftp
-        elif body.Vx < 0:
-            F -= Ftp
-        body.Fx += F * math.cos(alpha - math.pi)
-        body.Fy += F * math.sin(alpha - math.pi)
-    #Если шарик не касается поверхности, то на него действует только сила тяжести
+    num = surface.find_num(x0)
+    (k, b) = surface.find_kb(num)
+    fi1 = -math.atan(k)
+    body.xt = x = x1 = find_norm_x(k, b, x0, y0)
+    body.yt = y = y1 = surface.find_y(x)
+    x2 = x1
+    y2 = y1
+    fi = fi2 = fi1
+    if body.Vx > 0 and num < len(surface.points) - 1:
+
+        (k, b) = surface.find_kb(num + 1)
+        fi2 = -math.atan(k)
+        x2 = find_norm_x(k, b, x0, y0)
+        y2 = surface.find_y(x2)
+        if x2 < surface.points[num + 1].x or x2 > surface.points[num+2].x:
+            x2 = x1
+            y2 = y1
+            fi2 = fi1
+    if body.Vx < 0 and num > 0:
+        (k, b) = surface.find_kb(num - 1)
+        fi2 = -math.atan(k)
+        x2 = find_norm_x(k, b, x0, y0)
+        y2 = surface.find_y(x2)
+        if x2 < surface.points[num - 1].x or x2 > surface.points[num].x:
+            x2 = x1
+            y2 = y1
+            fi2 = fi1
+    if (x1 - x0) ** 2 + (y1 - y0) ** 2 <= (x2 - x0) ** 2 + (y2 - y0) ** 2:
+        body.xt = x = x1
+        fi = fi1
+        body.yt = y = y1
     else:
-        body.Fx = 0
-        body.Fy = -body.m * g
+        body.xt = x = x2
+        fi = fi2
+        body.yt = y = y2
+    #Если тело касается поверхности, то определяются силы, действующие на него при движении     
+    if abs(r ** 2 - ((x0 - x) ** 2 + (y0 - y) ** 2)) <= 0.002:
+       
+        #сила реакции поверхности
+        N = abs(body.mg) * math.cos(fi)
+        body.Nx = N * math.sin(fi)
+        body.Ny = N * math.cos(fi)
+        #сила трения
+        kf = surface.find_friction(x)
+        if fi != 0:
+            Ftp = abs(N)
+        else:
+            Ftp = abs(body.m * g) 
+        if body.Vx > 0:
+            body.Ftp_x = -Ftp * math.cos(fi)
+            body.Ftp_y = Ftp * math.sin(fi)
+        elif body.Vx < 0:
+            body.Ftp_x = Ftp * math.cos(fi)
+            body.Ftp_y = -Ftp * math.sin(fi)
+        body.Ftp_x *= kf
+        body.Ftp_y *= kf
+    #проекции результирующей силы
+    oldx = body.x
+    body.Fx = body.Nx + body.Ftp_x
+    body.Fy = body.Ny + body.mg + body.Ftp_y   
     # перемещение тела
     ax = body.Fx / body.m
     body.Vx += ax * dt
@@ -48,15 +95,71 @@ def move_body(body, surface, g, dt, max_x):
     body.Vy += ay * dt
     body.y += body.Vy * dt
     # проверка и коррекция при выходе тела за поверхность
+    # определение точки касания
     x0 = body.x
     y0 = body.y
     r = body.r
-    alpha = surface.find_alpha(x0)
-    x = math.sin(alpha) * r + x0
-    y = surface.find_y(x)
+    body.xt = body.x
+    body.yt = body.y
+    num = surface.find_num(x0)
+    (k, b) = surface.find_kb(num)
+    fi1 = -math.atan(k)
+    body.xt = x = x1 = find_norm_x(k, b, x0, y0)
+    body.yt = y = y1 = surface.find_y(x)
+    x2 = x1
+    y2 = y1
+    fi = fi2 = fi1
+    if body.Vx > 0 and num < len(surface.points) - 1:
+
+        (k, b) = surface.find_kb(num + 1)
+        fi2 = -math.atan(k)
+        x2 = find_norm_x(k, b, x0, y0)
+        y2 = surface.find_y(x2)
+        if x2 < surface.points[num + 1].x or x2 > surface.points[num+2].x:
+            x2 = x1
+            y2 = y1
+            fi2 = fi1
+    if body.Vx < 0 and num > 0:
+        (k, b) = surface.find_kb(num - 1)
+        fi2 = -math.atan(k)
+        x2 = find_norm_x(k, b, x0, y0)
+        y2 = surface.find_y(x2)
+        if x2 < surface.points[num - 1].x or x2 > surface.points[num].x:
+            x2 = x1
+            y2 = y1
+            fi2 = fi1
+    #выбор точки касания
+    if (x1 - x0) ** 2 + (y1 - y0) ** 2 <= (x2 - x0) ** 2 + (y2 - y0) ** 2:
+        body.xt = x = x1
+        fi = fi1
+        body.yt = y = y1
+    else:
+        body.xt = x = x2
+        fi = fi2
+        body.yt = y = y2
+    #коррекция положения тела
     if (x0 - x) ** 2 + (y0 - y) ** 2 < r ** 2:
-        body.y = (r ** 2 - (x0 - x) ** 2) ** 0.5 + y
+        R = ((x0 - x) ** 2 + (y0 - y) ** 2) ** 0.5
+        a = math.acos((x0 - x) / R)
+        body.y = body.y + math.sin(a) * (r - R) 
+        body.x = body.x + math.cos(a) * (r - R) 
+        V_sq = body.Vx ** 2 + body.Vy ** 2
+        #коррекция скорости
         body.Vy = (body.y - oldy) / dt
+        #закон сохранения энергии
+        if V_sq > body.Vy ** 2:
+            V = (V_sq - body.Vy ** 2) ** 0.5
+        else: 
+            V = 0
+        if body.Vx < 0:
+            V = -V
+        if body.Vx == 0:
+            if fi < 0:
+                V = -V
+            if fi == 0:
+                V = 0
+        body.Vx = V
+            
     #обработка достижения телом края экрана
     if x0 + r > max_x:
         body.x = max_x - r

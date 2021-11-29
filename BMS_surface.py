@@ -68,7 +68,7 @@ class surface:
                     y = self.points[i].y
                 #если найден интервал, то вычисляется координата точки на основе интерполяции
                 
-                elif self.points[i].x < x < self.points[i + 1].x:
+                elif x > self.points[i].x and x < self.points[i + 1].x:
                     k = (self.points[i + 1].y - self.points[i].y) / (self.points[i + 1].x - self.points[i].x)
                     b = self.points[i].y - self.points[i].x * k
                     y = k * x + b
@@ -104,7 +104,53 @@ class surface:
                 alpha = math.atan2(self.points[n - 1].y - self.find_y(self.points[n - 1].x - 0.01), 0.01)
             else:
                 alpha = math.atan((self.find_y(x + 0.01) - self.find_y(x - 0.01))/0.02)
-        return alpha             
+        return alpha
+   
+    def find_x(self, y, num):
+        '''
+        Определение координаты X по координате У для любой точки num-го участка поверхности на основе линейной интерполяции 
+        '''
+        n = len(self.points)
+        # если количество точек менее 2
+        x = -1
+        if num < n - 1:
+            if y >= self.points[num].y and y <= self.points[num + 1].y:
+                if y == self.points[num].y:
+                    x = self.points[num].x
+                #если найден интервал, то вычисляется координата точки на основе интерполяции
+                elif y == self.points[num - 1].y:
+                    x = self.points[num - 1].x                
+                else:
+                    k = (self.points[num + 1].y - self.points[num].y) / (self.points[num + 1].x - self.points[num].x)
+                    b = self.points[num].y - self.points[num].x * k
+                    x = (y - b) / k
+        return x    
 
-
-    
+    def find_kb(self, num):
+        '''
+        Определение параметров уравнения участка num 
+        '''
+        n = len(self.points)
+        # если количество точек менее 2, то функция возвращает -1
+        if num < n - 1:
+            k = (self.points[num + 1].y - self.points[num].y) / (self.points[num + 1].x - self.points[num].x)
+            b = self.points[num].y - self.points[num].x * k
+        return (k, b)  
+   
+    def find_num(self, x):
+        '''
+        Определение номера участка по координате Х для любой точки поверхности на основе линейной интерполяции 
+        '''
+        n = len(self.points)
+        # если количество точек менее 2 или Х выходит за диапазон поверхности, то функция возвращает -1
+        num = -1
+        if n > 2 and x >= self.points[0].x and x <= self.points[n - 1].x:
+            # поиск точки с абсциссой Х или интервала, в котором лежит точка
+            for i in range(0, n - 2):
+                if x == self.points[i].x:
+                    num = i
+                elif x > self.points[i].x and x < self.points[i + 1].x:
+                    num = i
+            if num == -1 and x == self.points[n - 1].x:
+                num = n - 1                        
+        return num 

@@ -1,0 +1,13 @@
+#puppagame
+name Test_level
+point 0.05 3 0.2
+point 1 2 -0.4 
+point 1.5 2 0.2
+point 2 2.3 0
+point 3.5 2.5 0.2
+point 4 1 0.2
+point 4.8 0.7 0.2
+point 5.5 0.3 0.2
+target 5 2.5 0.1
+target 2 3 0.1
+body 0.2 3.7

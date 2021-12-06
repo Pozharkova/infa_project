@@ -4,7 +4,7 @@ import math
 
 def check_hit(body, target):
     """Проверяет столконовение шарика с мишенью"""
-    if (body.x - target.x) ** 2 + (body.y - target.y) ** 2 <= target.r ** 2:
+    if math.dist((body.x, body.y), (target.x, target.y)) < target.r + body.r:
         target.active = True
 def find_norm_x(k, b, x0, y0):
     return (k * y0 + x0 - k * b)/(1 + k ** 2)

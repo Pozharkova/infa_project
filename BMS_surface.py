@@ -29,11 +29,11 @@ class surface:
     def __init__(self):
         '''
         Инициализация класса траектории: пустой список точек
-        По умолчанию черный цвет и линейная интерполяция
+        
         '''
         # точки 
         self.points = []
-        self.lines = []
+
        
 
         
@@ -131,7 +131,8 @@ class surface:
         Определение параметров уравнения участка num 
         '''
         n = len(self.points)
-        # если количество точек менее 2, то функция возвращает -1
+        (k, b) = (0, 0)
+        # если количество точек менее 2, то функция возвращает 0, 0
         if num < n - 1:
             k = (self.points[num + 1].y - self.points[num].y) / (self.points[num + 1].x - self.points[num].x)
             b = self.points[num].y - self.points[num].x * k

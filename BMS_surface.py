@@ -136,6 +136,10 @@ class surface:
         if num < n - 1:
             k = (self.points[num + 1].y - self.points[num].y) / (self.points[num + 1].x - self.points[num].x)
             b = self.points[num].y - self.points[num].x * k
+        '''elif num == n - 1:
+            k = (self.points[num].y - self.points[num - 1].y) / (self.points[num].x - self.points[num - 1].x)
+            b = self.points[num - 1].y - self.points[num - 1].x * k
+        '''    
         return (k, b)  
    
     def find_num(self, x):
@@ -147,11 +151,10 @@ class surface:
         num = -1
         if n > 2 and x >= self.points[0].x and x <= self.points[n - 1].x:
             # поиск точки с абсциссой Х или интервала, в котором лежит точка
-            for i in range(0, n - 2):
-                if x == self.points[i].x:
-                    num = i
-                elif x > self.points[i].x and x < self.points[i + 1].x:
+            for i in range(n - 1):
+                if (x == self.points[i].x) or (x > self.points[i].x and x < self.points[i + 1].x):
                     num = i
             if num == -1 and x == self.points[n - 1].x:
-                num = n - 1                        
-        return num 
+                num = n - 1 
+        return num
+    

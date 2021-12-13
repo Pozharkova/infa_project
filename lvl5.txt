@@ -1,0 +1,17 @@
+#puppagame
+name Level 5(Wave)
+point 0.04 2.4 0.2
+point 1 2 0.2
+point 1.2 2 0.4
+point 2.5 2 0.0
+point 3.5 2 0.2
+point 4 2 0.2
+point 4.5 2 0.2
+point 5.5 2 0.2
+target 0.5 3 0.1
+target 1.5 1.5 0.1
+target 2.5 3 0.1
+target 3.5 1.5 0.1
+target 4.5 3 0.1
+target 5.5 1.5 0.1
+body 0.2 3.7

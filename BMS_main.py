@@ -29,7 +29,7 @@ class Game:
         
         #создание окна
         self.root = tk.Tk()
-        self.fr = tk.Frame(self.root)
+        #self.fr = tk.Frame(self.root)
         self.root.geometry('800x600')
         self.root.title("The Pupa's Game")
         #создание основного окна
